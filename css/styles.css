@@ -1,0 +1,64 @@
+
+body {
+  /* background-color: gray; */
+  background-color: #AEB5BF;
+  padding-top: 70px; /* ajusta según la altura real del navbar */
+          .datepicker-dropdown {
+            background-color: #2f3e3e !important;
+            color: white !important;
+        }
+        .datepicker table tr td, 
+        .datepicker table tr th {
+            color: white !important;
+        }
+
+
+}
+
+
+
+.card-header {
+  background-color: #295773;
+  color: white;
+  
+}
+
+.navbar{
+  background-color:  #285773;
+   padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  
+}
+
+.nav-link {
+  color: white;
+}
+
+
+
+
+.navbar .navbar-brand i {
+  font-size: 1.5rem; /* antes tenías 2rem */
+}
+
+
+
+
+#formupdate .input-group-text {
+  border: 1px solid black;
+} 
+ #formupdate .form-control {
+  border: 1px solid black;
+} 
+ #formupdate .form-select {
+  border: 1px solid black;
+} 
+
+
+.badge-square {
+  border-radius: 0 !important;
+  padding: 0.5em 0.75em;
+}
+
+
+
