@@ -1,9 +1,9 @@
 <?php
     // mysql is the driver
     // dsn driver source name 
-    $dsn = 'mysql:host=localhost;dbname=contactsv3';
+    $dsn = 'mysql:host=192.168.98.130;dbname=project1';
     $username = 'root';
-    $password ='';
+    $password ='root';
 
     try {
          //create an instance of the PDO class with the required parameters
