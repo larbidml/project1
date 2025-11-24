@@ -90,6 +90,24 @@ if (!isset($idsocio)) {
 }
 
 /* ----------------------------------------------------------
+   Verificar si documento ya existe (es UNIQUE)
+---------------------------------------------------------- */
+$ok = true;
+$errorMsg = '';
+
+if (!empty($documento)) {
+    $sqlCheck = "SELECT COUNT(*) as existe FROM socios WHERE documento = :documento";
+    $stmtCheck = $db->prepare($sqlCheck);
+    $stmtCheck->execute([':documento' => $documento]);
+    $result = $stmtCheck->fetch();
+    
+    if ($result['existe'] > 0) {
+        $ok = false;
+        $errorMsg = "El documento ya existe en la base de datos.";
+    }
+}
+
+/* ----------------------------------------------------------
    SQL INSERT seguro
 ---------------------------------------------------------- */
 
@@ -110,44 +128,47 @@ $sql = "INSERT INTO socios (
 )";
 
 try {
-    $stmt = $db->prepare($sql);
-    
-    $ok = $stmt->execute([
-        ':idfamilar'        => $idfamilar,
-        ':tiposocio'        => $tiposocio,
-        ':documento'        => $documento,
-        ':expirationDate'   => $expirationDate,
-        ':nombre'           => $nombre,
-        ':apellido1'        => $apellido1,
-        ':apellido2'        => $apellido2,
-        ':telefono'         => $telefono,
-        ':direccion'        => $direccion,
-        ':fnacimiento'      => $fnacimiento,
-        ':tsanitaria'       => $tsanitaria,
-        ':fnumerosa'        => $fnumerosa,
-        ':email'            => $email,
-        ':note'             => $note,
-        ':pasaporte'        => $pasaporte,
-        ':pasaportecaducidad'=> $pasaportecaducidad,
-        ':lugarnacimiento'  => $lugarnacimiento,
-        ':nifSupport'       => $nifSupport,
-        ':nseguridadsocial' => $nseguridadsocial,
-        ':driveLink'        => $driveLink,
-        ':iban'             => $iban,
-        ':nombepadre'       => $nombepadre,
-        ':nombremadre'      => $nombremadre,
-        ':casadocon'        => $casadocon,
-        ':lugarmatrimonio'  => $lugarmatrimonio,
-        ':fmatrimonio'      => $fmatrimonio,
-  
-        ':fnumerosacaducidad'=> $fnumerosacaducidad,
-        ':fnumerosaexpedicion'=> $fnumerosaexpedicion,
-        ':fechaderegistro'  => $fechaRegistro
-    ]);
+    if ($ok) {
+        $stmt = $db->prepare($sql);
+        
+        $ok = $stmt->execute([
+            ':idfamilar'        => $idfamilar,
+            ':tiposocio'        => $tiposocio,
+            ':documento'        => $documento,
+            ':expirationDate'   => $expirationDate,
+            ':nombre'           => $nombre,
+            ':apellido1'        => $apellido1,
+            ':apellido2'        => $apellido2,
+            ':telefono'         => $telefono,
+            ':direccion'        => $direccion,
+            ':fnacimiento'      => $fnacimiento,
+            ':tsanitaria'       => $tsanitaria,
+            ':fnumerosa'        => $fnumerosa,
+            ':email'            => $email,
+            ':note'             => $note,
+            ':pasaporte'        => $pasaporte,
+            ':pasaportecaducidad'=> $pasaportecaducidad,
+            ':lugarnacimiento'  => $lugarnacimiento,
+            ':nifSupport'       => $nifSupport,
+            ':nseguridadsocial' => $nseguridadsocial,
+            ':driveLink'        => $driveLink,
+            ':iban'             => $iban,
+            ':nombepadre'       => $nombepadre,
+            ':nombremadre'      => $nombremadre,
+            ':casadocon'        => $casadocon,
+            ':lugarmatrimonio'  => $lugarmatrimonio,
+            ':fmatrimonio'      => $fmatrimonio,
+      
+            ':fnumerosacaducidad'=> $fnumerosacaducidad,
+            ':fnumerosaexpedicion'=> $fnumerosaexpedicion,
+            ':fechaderegistro'  => $fechaRegistro
+        ]);
+    }
 
 } catch (PDOException $e) {
     error_log("Error al insertar socio: " . $e->getMessage());
     $ok = false;
+    $errorMsg = "Error al insertar: " . $e->getMessage();
 }
 
 
@@ -202,8 +223,8 @@ $statement->execute([
                     <?php else: ?>
                         <div class="alert alert-danger">
                             <strong>Error al registrar el socio/hijo.</strong>
-                            <?php if (isset($e)): ?>
-                                <p class="mt-2 mb-0"><small>Error: <?php echo $e->getMessage(); ?></small></p>
+                            <?php if (!empty($errorMsg)): ?>
+                                <p class="mt-2 mb-0"><small><?php echo $errorMsg; ?></small></p>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>
