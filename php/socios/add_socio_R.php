@@ -112,14 +112,14 @@ if (!empty($documento)) {
 ---------------------------------------------------------- */
 
 $sql = "INSERT INTO socios (
-    idfamilar, tiposocio, documento, expirationDate, nombre, apellido1, apellido2,
+    tiposocio, documento, expirationDate, nombre, apellido1, apellido2,
     telefono, direccion,  fnacimiento, tsanitaria, fnumerosa, email,
     note, pasaporte, pasaportecaducidad, lugarnacimiento, nifSupport, nseguridadsocial,
     driveLink,  iban, nombepadre, nombremadre, casadocon,
     lugarmatrimonio, fmatrimonio, 
     fnumerosacaducidad, fnumerosaexpedicion, fechaderegistro
 ) VALUES (
-    :idfamilar, :tiposocio, :documento, :expirationDate, :nombre, :apellido1, :apellido2,
+    :tiposocio, :documento, :expirationDate, :nombre, :apellido1, :apellido2,
     :telefono, :direccion, :fnacimiento, :tsanitaria, :fnumerosa, :email,
     :note, :pasaporte, :pasaportecaducidad, :lugarnacimiento, :nifSupport, :nseguridadsocial,
     :driveLink,  :iban, :nombepadre, :nombremadre, :casadocon,
@@ -132,7 +132,7 @@ try {
         $stmt = $db->prepare($sql);
         
         $ok = $stmt->execute([
-            ':idfamilar'        => $idfamilar,
+            
             ':tiposocio'        => $tiposocio,
             ':documento'        => $documento,
             ':expirationDate'   => $expirationDate,
