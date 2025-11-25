@@ -1,4 +1,5 @@
 <?php
+if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
 include_once '../resource/headerPage.php';
 include_once '../resource/Database.php';
 
@@ -17,6 +18,10 @@ $alert      = $alert      ?? null;
 $alertType  = $alertType  ?? '';
 $csrf       = $csrf       ?? '';
 
+$formData = $_SESSION['form_data'] ?? [];
+$formError = $_SESSION['form_error'] ?? null;
+unset($_SESSION['form_data'], $_SESSION['form_error']);
+
 ?>
 <div class="container my-4">
     <div class="row justify-content-center">
@@ -32,6 +37,11 @@ $csrf       = $csrf       ?? '';
                     <?php if ($alert !== null): ?>
                         <div class="alert alert-<?php echo $alertType === 'success' ? 'success' : 'danger'; ?>">
                             <?php echo e($alert); ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (!empty($formError)): ?>
+                        <div class="alert alert-danger">
+                            <?php echo e($formError); ?>
                         </div>
                     <?php endif; ?>
 
@@ -53,7 +63,8 @@ $csrf       = $csrf       ?? '';
                             <!-- DOCUMENTO -->
                             <div class="col-12 col-md-4">
                                 <label class="form-label mb-1">Documento</label>
-                                <input type="text" name="documento" class="form-control bg-warning" required>
+                                <input id="documento" type="text" name="documento" class="form-control bg-warning" value="<?php echo e($formData['documento'] ?? ''); ?>" required>
+                                <div id="documento-feedback" class="form-text text-danger" style="display:none;"></div>
                             </div>
 
                         <div class="col-12 col-md-4">
@@ -95,7 +106,7 @@ $csrf       = $csrf       ?? '';
                             <!-- CADUCA -->
                             <div class="col-12 col-md-4">
                                 <label class="form-label mb-1">Dni Caduca</label>
-                                <input type="date" name="expirationDate" class="form-control">
+                                <input type="date" name="expirationDate" class="form-control" value="<?php echo e($formData['expirationDate'] ?? ''); ?>">
                             </div>
 
                             <!-- SOPORTE -->
@@ -229,7 +240,7 @@ $csrf       = $csrf       ?? '';
                         ======================== -->
                         <div class="col-12 d-flex justify-content-end gap-2">
                            
-                            <button class="btn btn-primary" type="submit">Guardar Socio</button>
+                            <button class="btn btn-primary" type="submit" id="submit-btn">Guardar Socio</button>
                         </div>
 
                     </form>
@@ -238,4 +249,43 @@ $csrf       = $csrf       ?? '';
         </div>
     </div>
 </div>
+                <script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    const docField = document.getElementById('documento');
+                    const feedback = document.getElementById('documento-feedback');
+                    const submitBtn = document.getElementById('submit-btn');
+                    let timer = null;
+
+                    function checkDocumento() {
+                        const val = docField.value.trim();
+                        if (!val) {
+                            feedback.style.display = 'none';
+                            submitBtn.disabled = false;
+                            return;
+                        }
+
+                        fetch('check_documento.php?documento=' + encodeURIComponent(val))
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.exists) {
+                                    feedback.style.display = 'block';
+                                    feedback.textContent = 'El documento ya existe.';
+                                    submitBtn.disabled = true;
+                                } else {
+                                    feedback.style.display = 'none';
+                                    submitBtn.disabled = false;
+                                }
+                            }).catch(err => {
+                                console.error(err);
+                            });
+                    }
+
+                    docField.addEventListener('input', function(){
+                        clearTimeout(timer);
+                        timer = setTimeout(checkDocumento, 500);
+                    });
+                    docField.addEventListener('blur', checkDocumento);
+                    if (docField.value.trim()) { checkDocumento(); }
+                });
+                </script>
 

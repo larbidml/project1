@@ -31,12 +31,11 @@ $num_columns = $statement->columnCount();
 <div class="card ">
 
 <div class="card-header " style=" background-color: #295773;">
-	<form method="post" action="add_socio.php">
+	
 	<?php
 	echo "<label > registros :  <span class=\"badge rounded-pill bg-primary\">$num_rows</span></label>\n";
 	?>
-	<button type="submit" class="btn btn-primary btn-sm float-end">Nuevo Socio</button>
-	</form>
+
 </div>
 
 <?php

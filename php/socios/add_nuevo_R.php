@@ -103,6 +103,24 @@ if (!isset($idsocio)) {
 }
 
 /* ----------------------------------------------------------
+   Verificar si documento ya existe (es UNIQUE)
+---------------------------------------------------------- */
+$ok = true;
+$errorMsg = '';
+
+if (!empty($documento)) {
+    $sqlCheck = "SELECT COUNT(*) as existe FROM socios WHERE documento = :documento";
+    $stmtCheck = $db->prepare($sqlCheck);
+    $stmtCheck->execute([':documento' => $documento]);
+    $result = $stmtCheck->fetch();
+    
+    if ($result && $result['existe'] > 0) {
+        $ok = false;
+        $errorMsg = "El documento ya existe en la base de datos.";
+    }
+}
+
+/* ----------------------------------------------------------
    SQL INSERT seguro
 ---------------------------------------------------------- */
 
@@ -123,9 +141,10 @@ $sql = "INSERT INTO socios (
 )";
 
 try {
-    $stmt = $db->prepare($sql);
-    
-    $ok = $stmt->execute([
+    if ($ok) {
+        $stmt = $db->prepare($sql);
+        
+        $ok = $stmt->execute([
         ':idfamilar'        => $idfamilar,
         ':tiposocio'        => $tiposocio,
         ':documento'        => $documento,
@@ -157,27 +176,29 @@ try {
         ':fnumerosaexpedicion'=> $fnumerosaexpedicion,
         ':fechaderegistro'  => $fechaRegistro
     ]);
+    }
 
 } catch (PDOException $e) {
     error_log("Error al insertar socio: " . $e->getMessage());
     $ok = false;
+    $errorMsg = "Error al insertar: " . $e->getMessage();
 }
 
 
-$sqlQuery =
-"SELECT idsocio FROM socios 
-WHERE 1
-ORDER BY idsocio desc 
-";
-$statement = $db->prepare($sqlQuery);
-$statement->execute();
-$data2 = $statement->fetchAll();
-$num_rows = $statement->rowCount();
-$num_columns = $statement->columnCount();
-// print_r($data2);
-echo $data2[0]['idsocio'];
+if ($ok) {
+    $sqlQuery =
+    "SELECT idsocio FROM socios 
+    WHERE 1
+    ORDER BY idsocio desc 
+    ";
+    $statement = $db->prepare($sqlQuery);
+    $statement->execute();
+    $data2 = $statement->fetchAll();
+    $num_rows = $statement->rowCount();
+    $num_columns = $statement->columnCount();
+    // print_r($data2);
 
-if ($tiposocio == "P") {
+    if ($tiposocio == "P") {
     
 
 
@@ -196,6 +217,26 @@ $statement->execute([
     ':idfamilar' => $idfamilar
     
 ]);
+    }
+}
+
+// Si hubo error en la inserción y tenemos un mensaje, reenviamos al formulario original usando session + JS redirect
+if (!$ok && !empty($errorMsg)) {
+    if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+    $_SESSION['form_data'] = $_POST;
+    $_SESSION['form_error'] = $errorMsg;
+
+    $redirect = 'add_hijo.php';
+    switch ($tiposocio) {
+        case 'H': $redirect = 'add_hijo.php'; break;
+        case 'C': $redirect = 'add_conyuge.php'; break;
+        case 'F': $redirect = 'add_familiar.php'; break;
+        case 'P': $redirect = 'add_socio.php'; break;
+        default: $redirect = 'add_hijo.php'; break;
+    }
+
+    echo "<script>window.location.href = '" . $redirect . "';</script>";
+    exit;
 }
 
 ?>
@@ -214,8 +255,8 @@ $statement->execute([
                     <?php else: ?>
                         <div class="alert alert-danger">
                             <strong>Error al registrar el socio/hijo.</strong>
-                            <?php if (isset($e)): ?>
-                                <p class="mt-2 mb-0"><small>Error: <?php echo $e->getMessage(); ?></small></p>
+                            <?php if (!empty($errorMsg)): ?>
+                                <p class="mt-2 mb-0"><small><?php echo $errorMsg; ?></small></p>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>

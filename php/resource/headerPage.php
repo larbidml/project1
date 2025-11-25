@@ -44,7 +44,8 @@
         <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
 
 
-          <li class="nav-item"><a class="nav-link text-danger" href="../socios/buscar.php">Contactos2</a></li>
+          <li class="nav-item"><a class="nav-link " href="../socios/buscar.php">Contactos</a></li>
+          <li class="nav-item"><a class="nav-link " href="../socios/add_socio.php">Nuevo Contacto</a></li>
 
         </ul>
 

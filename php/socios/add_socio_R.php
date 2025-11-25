@@ -28,6 +28,15 @@ function validarFechaISO(?string $fecha): ?string
     return $fecha;
 }
 
+// Si hubo error, guardamos los datos del formulario en session y redirigimos al formulario
+if (!$ok && !empty($errorMsg)) {
+    if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+    $_SESSION['form_data'] = $_POST;
+    $_SESSION['form_error'] = $errorMsg;
+    echo "<script>window.location.href = 'add_socio.php';</script>";
+    exit;
+}
+
 /* ----------------------------------------------------------
    Sanitización y funciones auxiliares
 ---------------------------------------------------------- */
