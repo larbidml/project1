@@ -3,8 +3,8 @@
     // dsn driver source name 
     // $dsn = 'mysql:host=192.168.98.130;dbname=project1';
     $dsn = 'mysql:host=192.168.1.19;dbname=project1';
-    $username = 'project1user';
-    $password ='632951030';
+    $username = 'root';
+    $password ='';
 
     try {
          //create an instance of the PDO class with the required parameters
